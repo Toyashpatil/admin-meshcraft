@@ -1,0 +1,44 @@
+[
+    {
+        "id": "1",
+        "title": "Campfire Scene",
+        "description": "A realistic outdoor campfire setup with logs and a cooking pot.",
+        "image": "/assets/campfire.png",
+        "technical": {
+            "objects": 5,
+            "vertices": 1374482,
+            "edges": 2733451,
+            "format": ".blend",
+            "faces": 512000,
+            "triangles": 1024000
+        }
+    },
+    {
+        "id": "2",
+        "title": "Medieval Castle",
+        "description": "A high-poly medieval castle with detailed walls and towers.",
+        "image": "/assets/castle.png",
+        "technical": {
+            "objects": 12,
+            "vertices": 2458745,
+            "edges": 4839203,
+            "format": ".fbx",
+            "faces": 1200000,
+            "triangles": 2400000
+        }
+    },
+    {
+        "id": "3",
+        "title": "Futuristic Spaceship",
+        "description": "A low-poly futuristic spaceship ready for game integration.",
+        "image": "/assets/spaceship.png",
+        "technical": {
+            "objects": 8,
+            "vertices": 879456,
+            "edges": 1783900,
+            "format": ".obj",
+            "faces": 390000,
+            "triangles": 780000
+        }
+    }
+]
