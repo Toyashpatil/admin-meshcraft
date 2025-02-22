@@ -14,6 +14,7 @@ const AuthState = (props) => {
     poly: "",
     price: "",
     modelUrl: "",
+    walkModelUrl:"",
     software: "",
     softwareLogo: "",
     // We'll store scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ in the same object

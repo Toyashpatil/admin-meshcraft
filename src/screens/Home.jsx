@@ -51,7 +51,7 @@ const Home = () => {
       parseFloat(assetData.rotationZ) || 0
     ];
 
-    // Build the object to send to the server, including extendedDescription
+    // Build the object to send to the server, including extendedDescription and walkModelUrl
     const newAsset = {
       title: assetData.title,
       description: assetData.description,
@@ -59,6 +59,7 @@ const Home = () => {
       poly: assetData.poly,
       price: assetData.price,
       modelUrl: assetData.modelUrl,
+      walkModelUrl: assetData.walkModelUrl, // added field
       software: assetData.software,
       softwareLogo: assetData.softwareLogo,
       scale: scaleArray,
@@ -84,6 +85,7 @@ const Home = () => {
       poly: "",
       price: "",
       modelUrl: "",
+      walkModelUrl: "",  // clear walkModelUrl
       software: "",
       softwareLogo: "",
       scaleX: "",
@@ -289,6 +291,21 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
+              {/* walkModelUrl */}
+              <div className="mb-4">
+                <label className="block text-gray-300 text-sm mb-2" htmlFor="walkModelUrl">
+                  Walk Model URL
+                </label>
+                <input
+                  className="w-full p-2 rounded bg-[#1b1e33] text-white focus:outline-none"
+                  type="text"
+                  id="walkModelUrl"
+                  name="walkModelUrl"
+                  placeholder="/3dfiles/malezombiewalk.glb"
+                  value={assetData.walkModelUrl}
+                  onChange={handleChange}
+                />
+              </div>
               {/* Software */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="software">
@@ -324,7 +341,6 @@ const Home = () => {
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleX">Scale X</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="scaleX"
@@ -332,12 +348,12 @@ const Home = () => {
                     placeholder="1"
                     value={assetData.scaleX || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleY">Scale Y</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="scaleY"
@@ -345,12 +361,12 @@ const Home = () => {
                     placeholder="1"
                     value={assetData.scaleY || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleZ">Scale Z</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="scaleZ"
@@ -358,6 +374,7 @@ const Home = () => {
                     placeholder="1"
                     value={assetData.scaleZ || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
               </div>
@@ -366,7 +383,6 @@ const Home = () => {
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationX">Rot X</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="rotationX"
@@ -374,12 +390,12 @@ const Home = () => {
                     placeholder="0"
                     value={assetData.rotationX || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationY">Rot Y</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="rotationY"
@@ -387,12 +403,12 @@ const Home = () => {
                     placeholder="0"
                     value={assetData.rotationY || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationZ">Rot Z</label>
                   <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                     type="number"
                     step="0.01"
                     id="rotationZ"
@@ -400,6 +416,7 @@ const Home = () => {
                     placeholder="0"
                     value={assetData.rotationZ || ""}
                     onChange={handleChange}
+                    className="w-full p-1 rounded bg-[#1b1e33] text-white focus:outline-none"
                   />
                 </div>
               </div>
@@ -409,10 +426,7 @@ const Home = () => {
                   Upload Asset File (Optional)
                 </label>
                 <input
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                    file:rounded-full file:border-0 file:text-sm file:font-semibold
-                    file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100
-                    focus:outline-none bg-[#1b1e33] p-2 rounded"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none bg-[#1b1e33] p-2 rounded"
                   type="file"
                   id="assetFile"
                   name="assetFile"
@@ -422,70 +436,24 @@ const Home = () => {
               {/* Technical Details */}
               <h3 className="text-md font-bold text-white mb-2 mt-6">Technical (Required)</h3>
               <div className="grid grid-cols-3 gap-2 text-xs">
-                <div>
-                  <label className="block text-gray-400">Objects</label>
-                  <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white text-center focus:outline-none"
-                    type="number"
-                    name="objects"
-                    placeholder="0"
-                    value={assetData.objects || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400">Vertices</label>
-                  <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white text-center focus:outline-none"
-                    type="number"
-                    name="vertices"
-                    placeholder="0"
-                    value={assetData.vertices || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400">Edges</label>
-                  <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white text-center focus:outline-none"
-                    type="number"
-                    name="edges"
-                    placeholder="0"
-                    value={assetData.edges || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400">Faces</label>
-                  <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white text-center focus:outline-none"
-                    type="number"
-                    name="faces"
-                    placeholder="0"
-                    value={assetData.faces || ""}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-400">Triangles</label>
-                  <input
-                    className="w-full p-1 rounded bg-[#1b1e33] text-white text-center focus:outline-none"
-                    type="number"
-                    name="triangles"
-                    placeholder="0"
-                    value={assetData.triangles || ""}
-                    onChange={handleChange}
-                  />
-                </div>
+                {["objects", "vertices", "edges", "faces", "triangles"].map(field => (
+                  <div key={field}>
+                    <label className="block text-gray-400 capitalize">{field}</label>
+                    <input
+                      type="text"
+                      name={field}
+                      placeholder="0"
+                      value={assetData.technical?.[field] || ""}
+                      onChange={handleChange}
+                      className="w-full bg-[#1b1e33] text-white px-4 py-2 rounded-md border border-gray-500 outline-none"
+                    />
+                  </div>
+                ))}
               </div>
               {/* Submit Button */}
               <button
                 type="submit"
-                className="mt-6 w-full px-6 py-2 text-white font-semibold rounded-full
-                  bg-gray-900 border-2 border-green-400 
-                  shadow-[0_0_10px_rgba(0,255,127,0.8)]
-                  hover:shadow-[0_0_20px_rgba(0,255,127,1)]
-                  transition-all duration-300 ease-in-out"
+                className="mt-6 w-full px-6 py-2 text-white font-semibold rounded-full bg-gray-900 border-2 border-green-400 shadow-[0_0_10px_rgba(0,255,127,0.8)] hover:shadow-[0_0_20px_rgba(0,255,127,1)] transition-all duration-300 ease-in-out"
               >
                 Add Asset
               </button>
