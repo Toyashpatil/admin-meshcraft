@@ -4,8 +4,8 @@ import ProfilePic from "../assets/Face.png";
 
 const AdminProfile = () => {
   const [admin, setAdmin] = useState({
-    name: "Admin Name",
-    email: "admin@example.com",
+    name: "Admin",
+    email: "webd.meshcraft@gmail.com",
     role: "Super Admin",
     bio: "Managing system users & ensuring security. Admin dashboard access.",
   });
