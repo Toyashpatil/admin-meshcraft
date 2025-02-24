@@ -1,10 +1,9 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import authContext from '../context/authContext';
 import logo from "../assets/Horizontalwithbgsmall.png";
 
 const LoginPage = () => {
-
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -54,19 +53,21 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-2 items-center justify-center min-h-screen bg-gray-900">
+    <div className="flex flex-col gap-4 items-center justify-center min-h-screen bg-gray-900 p-4">
       <img
         src={logo}
         alt="Meshcraft Logo"
-        className="w-80 mb-6"
+        className="w-64 md:w-80 mb-6"
       />
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-xl md:text-2xl font-bold text-white">
             Welcome to Admin Dashboard
           </h1>
         </div>
-        <h2 className="text-3xl font-bold text-white mb-6 text-center">Login</h2>
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
+          Login
+        </h2>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="sr-only">
@@ -106,7 +107,7 @@ const LoginPage = () => {
           )}
           <button
             type="submit"
-            className="relative w-full px-6 py-3 cursor-pointer text-white font-semibold rounded-full bg-gray-900 border-2 border-orange-400 shadow-[0_0_10px_rgba(255,165,0,0.8)] hover:shadow-[0_0_20px_rgba(255,165,0,1)] transition-all duration-300 ease-in-out"
+            className="relative w-full px-4 md:px-6 py-3 cursor-pointer text-white font-semibold rounded-full bg-gray-900 border-2 border-orange-400 shadow-[0_0_10px_rgba(255,165,0,0.8)] hover:shadow-[0_0_20px_rgba(255,165,0,1)] transition-all duration-300 ease-in-out"
           >
             Login
           </button>
