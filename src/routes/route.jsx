@@ -9,7 +9,7 @@ import LoginPage from "../screens/Login";
 const routes =[
     {
         path : "/",
-        element: <Home/>,
+        element: <LoginPage/>,
     },
     {
         path : "/login",
