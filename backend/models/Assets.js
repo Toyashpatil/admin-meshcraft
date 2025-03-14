@@ -22,47 +22,41 @@ const assetSchema = new Schema({
   poly: {
     type: String,
     trim: true,
-    // e.g. "Low Poly" or "High Poly"
     required: false
   },
   price: {
     type: String,
     trim: true,
-    // e.g. "$75.00"; if you prefer numeric, change to Number
     required: false
   },
   modelUrl: {
     type: String,
     trim: true,
-    // e.g. "/3dfiles/camp1fire.glb"
     required: false
   },
-  walkModelUrl: {
-    // new field for the walking animation model
-    type: String,
-    trim: true,
+  // Changed from a single string to an array of strings
+  walkModelUrls: {
+    type: [String],
     required: false,
-    default: "" // defaults to empty string if not provided
+    default: []
   },
   software: {
     type: String,
     trim: true,
-    // e.g. "3ds Max"
     required: false
   },
   softwareLogo: {
     type: String,
     trim: true,
-    // e.g. "/SoftwareLogo/new5.png"
     required: false
   },
   scale: {
-    type: [Number], // Array of numbers, e.g. [1, 1, 1]
+    type: [Number], // e.g. [1, 1, 1]
     required: false,
     default: [1, 1, 1]
   },
   rotation: {
-    type: [Number], // Array of numbers, e.g. [0, Math.PI/2, 0]
+    type: [Number], // e.g. [0, Math.PI/2, 0]
     required: false,
     default: [0, 0, 0]
   },
@@ -88,6 +82,6 @@ const assetSchema = new Schema({
       required: true
     }
   }
-}, { timestamps: true }); // createdAt, updatedAt
+}, { timestamps: true });
 
 module.exports = mongoose.model('Asset', assetSchema);

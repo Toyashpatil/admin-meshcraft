@@ -29,10 +29,28 @@ const Home = () => {
   // Generic change handler for form fields
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setAssetData((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+
+    if (name === 'walkModelUrls') {
+      // Split comma-separated input into an array of URLs
+      const urlsArray = value.split(',').map((url) => url.trim());
+      setAssetData((prev) => ({
+        ...prev,
+        walkModelUrls: urlsArray,
+      }));
+    } else if (['objects', 'vertices', 'edges', 'faces', 'triangles'].includes(name)) {
+      // If the input name corresponds to a technical field,
+      // we'll store it at the top level first, then use it in handleSubmit
+      setAssetData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else {
+      // Default field update
+      setAssetData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   // Final form submission
@@ -43,23 +61,24 @@ const Home = () => {
     const scaleArray = [
       parseFloat(assetData.scaleX) || 1,
       parseFloat(assetData.scaleY) || 1,
-      parseFloat(assetData.scaleZ) || 1
+      parseFloat(assetData.scaleZ) || 1,
     ];
     const rotationArray = [
       parseFloat(assetData.rotationX) || 0,
       parseFloat(assetData.rotationY) || 0,
-      parseFloat(assetData.rotationZ) || 0
+      parseFloat(assetData.rotationZ) || 0,
     ];
 
-    // Build the object to send to the server, including extendedDescription and walkModelUrl
+    // Build the object to send to the server
     const newAsset = {
       title: assetData.title,
       description: assetData.description,
-      extendedDescription: assetData.extendedDescription, // new field
+      extendedDescription: assetData.extendedDescription, 
       poly: assetData.poly,
       price: assetData.price,
       modelUrl: assetData.modelUrl,
-      walkModelUrl: assetData.walkModelUrl, // added field
+      // Now this is an array of URLs
+      walkModelUrls: assetData.walkModelUrls || [],
       software: assetData.software,
       softwareLogo: assetData.softwareLogo,
       scale: scaleArray,
@@ -69,7 +88,7 @@ const Home = () => {
         vertices: parseInt(assetData.vertices) || 0,
         edges: parseInt(assetData.edges) || 0,
         faces: parseInt(assetData.faces) || 0,
-        triangles: parseInt(assetData.triangles) || 0
+        triangles: parseInt(assetData.triangles) || 0,
       }
     };
 
@@ -77,15 +96,15 @@ const Home = () => {
     createAsset(newAsset);
     setOpen(true);
 
-    // Clear out the form
+    // Clear out the form and preview
     setAssetData({
       title: "",
       description: "",
-      extendedDescription: "", // clear extended description
+      extendedDescription: "",
       poly: "",
       price: "",
       modelUrl: "",
-      walkModelUrl: "",  // clear walkModelUrl
+      walkModelUrls: [], // reset to an empty array
       software: "",
       softwareLogo: "",
       scaleX: "",
@@ -98,7 +117,7 @@ const Home = () => {
       vertices: "",
       edges: "",
       faces: "",
-      triangles: ""
+      triangles: "",
     });
     setPreviewSrc("");
   };
@@ -291,18 +310,18 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
-              {/* walkModelUrl */}
+              {/* Walk Model URLs (multiple URLs) */}
               <div className="mb-4">
-                <label className="block text-gray-300 text-sm mb-2" htmlFor="walkModelUrl">
-                  Walk Model URL
+                <label className="block text-gray-300 text-sm mb-2" htmlFor="walkModelUrls">
+                  Animation/Walk Model URLs (comma separated)
                 </label>
                 <input
                   className="w-full p-2 rounded bg-[#1b1e33] text-white focus:outline-none"
                   type="text"
-                  id="walkModelUrl"
-                  name="walkModelUrl"
-                  placeholder="/3dfiles/malezombiewalk.glb"
-                  value={assetData.walkModelUrl}
+                  id="walkModelUrls"
+                  name="walkModelUrls"
+                  placeholder="/3dfiles/anim1.glb, /3dfiles/anim2.glb"
+                  value={assetData.walkModelUrls?.join(', ')}
                   onChange={handleChange}
                 />
               </div>
@@ -443,7 +462,7 @@ const Home = () => {
                       type="text"
                       name={field}
                       placeholder="0"
-                      value={assetData.technical?.[field] || ""}
+                      value={assetData[field] || ""} 
                       onChange={handleChange}
                       className="w-full bg-[#1b1e33] text-white px-4 py-2 rounded-md border border-gray-500 outline-none"
                     />

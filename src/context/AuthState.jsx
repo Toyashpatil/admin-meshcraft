@@ -8,23 +8,22 @@ const AuthState = (props) => {
   const [open, setOpen] = useState(false);
 
   // Form data for creating/updating an asset
+  // Updated walkModelUrl to walkModelUrls (array)
   const [assetData, setAssetData] = useState({
     title: "",
     description: "",
     poly: "",
     price: "",
     modelUrl: "",
-    walkModelUrl:"",
+    walkModelUrls: [], // <-- use an array
     software: "",
     softwareLogo: "",
-    // We'll store scaleX, scaleY, scaleZ, rotationX, rotationY, rotationZ in the same object
     scaleX: "",
     scaleY: "",
     scaleZ: "",
     rotationX: "",
     rotationY: "",
     rotationZ: "",
-    // Technical sub-fields
     objects: "",
     vertices: "",
     edges: "",
@@ -33,10 +32,11 @@ const AuthState = (props) => {
   });
 
   // Store all assets in state
-  // You could initialize this as `[]` or use JSON as a fallback
   const [editAssetData, setEditAssetData] = useState([]);
 
   // Base URL for the API
+  // NOTE: If your server routes are defined as /assets, you might use "http://localhost:5000" as your BASE_URL
+  // and then add "/assets" on each request. Adjust if needed.
   const BASE_URL = "http://localhost:5000/assets";
 
   // ───────────────────────────────────────────────────────────
@@ -53,7 +53,6 @@ const AuthState = (props) => {
       });
 
       if (!response.ok) {
-        // handle non-OK responses
         const errorData = await response.json();
         console.error("Create asset error:", errorData.message);
         return;
@@ -62,7 +61,7 @@ const AuthState = (props) => {
       const data = await response.json();
       console.log("Asset created successfully:", data);
 
-      // Optional: Update local state
+      // Update local state
       setEditAssetData((prevAssets) => [...prevAssets, data.asset]);
     } catch (error) {
       console.error("Server error while creating asset:", error);
@@ -82,10 +81,7 @@ const AuthState = (props) => {
       }
 
       const data = await response.json();
-      // According to your server, it returns: { assets: [...] }
-      // so we need to extract `assets` from that response.
       console.log("Fetched assets:", data.assets);
-
       setEditAssetData(data.assets);
     } catch (error) {
       console.error("Server error while fetching assets:", error);
@@ -170,11 +166,9 @@ const AuthState = (props) => {
     }
   };
 
-  // Fetch assets on initial mount (optional)
+  // Fetch assets on initial mount
   useEffect(() => {
-    
     getAssets();
-    console.log(editAssetData)
   }, []);
 
   return (

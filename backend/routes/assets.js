@@ -18,7 +18,7 @@ router.post('/assets', async (req, res) => {
       poly,
       price,
       modelUrl,
-      walkModelUrl, // NEW field
+      walkModelUrls, // Updated field (array)
       software,
       softwareLogo,
       scale,
@@ -26,7 +26,7 @@ router.post('/assets', async (req, res) => {
       technical
     } = req.body;
 
-    // Basic validation: require title, description, and technical
+    // Basic validation
     if (!title || !description || !technical) {
       return res
         .status(400)
@@ -41,7 +41,7 @@ router.post('/assets', async (req, res) => {
       poly,
       price,
       modelUrl,
-      walkModelUrl, // include walkModelUrl
+      walkModelUrls, // Now an array
       software,
       softwareLogo,
       scale,
@@ -51,7 +51,6 @@ router.post('/assets', async (req, res) => {
 
     // Save to MongoDB
     await newAsset.save();
-
     res.status(201).json({ message: "3D asset created successfully", asset: newAsset });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
@@ -78,7 +77,7 @@ router.put('/assets/:id', async (req, res) => {
       poly,
       price,
       modelUrl,
-      walkModelUrl, // NEW field
+      walkModelUrls, // Updated field (array)
       software,
       softwareLogo,
       scale,
@@ -96,7 +95,7 @@ router.put('/assets/:id', async (req, res) => {
         poly,
         price,
         modelUrl,
-        walkModelUrl, // update walkModelUrl
+        walkModelUrls, // Now an array
         software,
         softwareLogo,
         scale,
