@@ -26,7 +26,7 @@ const SideBar = () => {
 
   return (
     // The sidebar container is hidden on small devices
-    <div className="hidden md:flex text-white h-screen w-64 flex-col justify-between bg-[#2b2e4a]">
+    <div className="hidden md:flex text-white min-h-screen w-64 flex-col justify-between bg-[#2b2e4a]">
       {/* Logo / Brand Area */}
       <div>
         <div className="flex items-center justify-between px-5 py-6">

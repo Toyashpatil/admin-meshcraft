@@ -96,7 +96,7 @@ const AdminProfile = () => {
               </a>
             </li>
             <li>
-                      <button onClick={handleLogout}>Logout</button>Logout
+            <button className='text-gray-200' onClick={handleLogout}>Logout</button>
                     </li>
           </ul>
         </div>
@@ -134,13 +134,7 @@ const AdminProfile = () => {
             </div>
 
             {/* Edit Button */}
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="mt-4 sm:mt-0 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-full flex items-center gap-2 transition"
-            >
-              <FaEdit />
-              {isEditing ? "Cancel" : "Edit"}
-            </button>
+           
           </div>
 
           {/* Bio Section */}

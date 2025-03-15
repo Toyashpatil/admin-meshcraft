@@ -138,7 +138,7 @@ const EditDetails = () => {
                     </a>
                   </li>
                   <li>
-                      <button onClick={handleLogout}>Logout</button>Logout
+                      <button className='text-gray-200' onClick={handleLogout}>Logout</button>
                     </li>
                 </ul>
               </div>

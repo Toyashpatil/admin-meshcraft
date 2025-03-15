@@ -1,11 +1,12 @@
-import React, { useContext } from 'react';
-import { FaBell, FaWallet } from 'react-icons/fa';
+import React, { useContext,useState } from 'react';
+import { FaBell, FaBars, FaTimes, FaWallet } from 'react-icons/fa';
 import { IoNewspaper } from 'react-icons/io5';
 import { SiVirustotal } from 'react-icons/si';
 import Dialog from '../components/Dialog';
 import authContext from '../context/authContext';
 import Face from "../assets/face.png";
 import Logout from "../assets/svgs/logout.svg";
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { 
@@ -121,25 +122,88 @@ const Home = () => {
     });
     setPreviewSrc("");
   };
-
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+    const toggleSidebar = () => {
+      setSidebarOpen(prev => !prev);
+    };
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        console.log(data.message); // "Logout successful"
+  
+        // Clear token and update auth state
+        localStorage.removeItem("token");
+       
+        navigate("/");
+      } catch (error) {
+        console.error("Error during logout", error);
+      }
+    };
   return (
-    <div>
+    <div className='p-3 text-white '>
+      <div className="md:hidden fixed top-4 left-4 z-50">
+              <button
+                onClick={toggleSidebar}
+                className="p-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-xl hover:scale-105 transition-transform"
+              >
+                {sidebarOpen ? (
+                  <FaTimes className="text-white text-xl" />
+                ) : (
+                  <FaBars className="text-white text-xl" />
+                )}
+              </button>
+            </div>
+      
+            {/* Mobile Sidebar Dropdown Menu */}
+            {sidebarOpen && (
+              <div className="md:hidden fixed top-20 left-4 bg-[#1b1e33] rounded-lg shadow-lg p-4 z-40">
+                <ul className="space-y-2">
+                  
+                  <li>
+                    <a href="/addassets" className="block text-gray-200 hover:text-white">
+                      Add Assets
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/editassets" className="block text-gray-200 hover:text-white">
+                      Edit Assets
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/deleteassets" className="block text-gray-200 hover:text-white">
+                      Delete Assets
+                    </a>
+                  </li>
+                  <li>
+                    <a href="/profile" className="block text-gray-200 hover:text-white">
+                      Profile
+                    </a>
+                  </li>
+                  <li>
+                            <button className='text-gray-200' onClick={handleLogout}>Logout</button>
+                          </li>
+                </ul>
+              </div>
+            )}
       {/* HEADER */}
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <Dialog title={assetData.title} description={assetData.description} />
-        <div className="text-white">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl font-bold text-white pt-5  ">Dashboard</h1>
           <p className="text-sm mt-1 text-[#5B5A99]">
             Add any type of asset in just a click
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center px-4 gap-2 py-2 bg-gradient-to-r from-pink-500 to-purple-600 
-            rounded-full shadow-xl cursor-pointer hover:scale-105 transition-transform">
-            <FaBell className="text-white text-sm" />
-            <h1 className="text-white text-sm mb-0.5">15</h1>
-          </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
+        <div className="flex items-center gap-4 justify-center">
+          
+          <div className="hidden sm:flex items-center space-x-2 cursor-pointer">
             <img
               src={Face}
               alt="profile"
@@ -147,10 +211,7 @@ const Home = () => {
             />
             <span className="text-sm font-medium text-[#5B5A99]">John Doe</span>
           </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <img src={Logout} alt="logout" />
-            <span className="text-sm font-medium text-[#5B5A99]">Logout</span>
-          </div>
+          
         </div>
       </header>
 
