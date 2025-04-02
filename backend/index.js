@@ -15,7 +15,7 @@ connectTOMongo();
 app.use('/auth',require('./routes/auth'));
 app.use('/assets',require('./routes/assets'));
 app.use('/threeModel',require('./routes/threeModel'));
-
+app.use('/thumbnail', require('./routes/thumbnail'));
 
 
 

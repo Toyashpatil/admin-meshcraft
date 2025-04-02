@@ -1,4 +1,4 @@
-import React, { useContext,useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FaBell, FaBars, FaTimes, FaWallet } from 'react-icons/fa';
 import { IoNewspaper } from 'react-icons/io5';
 import { SiVirustotal } from 'react-icons/si';
@@ -15,15 +15,40 @@ const Home = () => {
     previewSrc, 
     setPreviewSrc, 
     setOpen,
-    createAsset 
+    createAsset,
+    uploadThumbnail // <-- Make sure this is imported from context
   } = useContext(authContext);
+
+  // Local state to store the actual file object
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+
+  // For sidebar toggle
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const toggleSidebar = () => setSidebarOpen(prev => !prev);
+
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      console.log(data.message); // "Logout successful"
+      localStorage.removeItem("token");
+      navigate("/");
+    } catch (error) {
+      console.error("Error during logout", error);
+    }
+  };
 
   // Handle file selection (optional image/file preview)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setThumbnailFile(file); // store the file for upload
       const objectUrl = URL.createObjectURL(file);
-      setPreviewSrc(objectUrl);
+      setPreviewSrc(objectUrl); // for preview
     }
   };
 
@@ -34,28 +59,16 @@ const Home = () => {
     if (name === 'walkModelUrls') {
       // Split comma-separated input into an array of URLs
       const urlsArray = value.split(',').map((url) => url.trim());
-      setAssetData((prev) => ({
-        ...prev,
-        walkModelUrls: urlsArray,
-      }));
+      setAssetData((prev) => ({ ...prev, walkModelUrls: urlsArray }));
     } else if (['objects', 'vertices', 'edges', 'faces', 'triangles'].includes(name)) {
-      // If the input name corresponds to a technical field,
-      // we'll store it at the top level first, then use it in handleSubmit
-      setAssetData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setAssetData((prev) => ({ ...prev, [name]: value }));
     } else {
-      // Default field update
-      setAssetData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setAssetData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   // Final form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Convert scale and rotation fields into arrays
@@ -78,7 +91,6 @@ const Home = () => {
       poly: assetData.poly,
       price: assetData.price,
       modelUrl: assetData.modelUrl,
-      // Now this is an array of URLs
       walkModelUrls: assetData.walkModelUrls || [],
       software: assetData.software,
       softwareLogo: assetData.softwareLogo,
@@ -93,11 +105,16 @@ const Home = () => {
       }
     };
 
-    // Call createAsset from context
-    createAsset(newAsset);
-    setOpen(true);
+    // 1) Create the Asset (JSON POST)
+    const createdAsset = await createAsset(newAsset);
 
-    // Clear out the form and preview
+    // 2) If a file was selected, upload it as thumbnail referencing the new asset's ID
+    if (thumbnailFile && createdAsset && createdAsset._id) {
+      await uploadThumbnail(createdAsset._id, thumbnailFile);
+    }
+
+    // Show dialog, reset form
+    setOpen(true);
     setAssetData({
       title: "",
       description: "",
@@ -105,7 +122,7 @@ const Home = () => {
       poly: "",
       price: "",
       modelUrl: "",
-      walkModelUrls: [], // reset to an empty array
+      walkModelUrls: [],
       software: "",
       softwareLogo: "",
       scaleX: "",
@@ -121,88 +138,66 @@ const Home = () => {
       triangles: "",
     });
     setPreviewSrc("");
+    setThumbnailFile(null);
   };
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-    const toggleSidebar = () => {
-      setSidebarOpen(prev => !prev);
-    };
-    const navigate = useNavigate();
-    const handleLogout = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await response.json();
-        console.log(data.message); // "Logout successful"
-  
-        // Clear token and update auth state
-        localStorage.removeItem("token");
-       
-        navigate("/");
-      } catch (error) {
-        console.error("Error during logout", error);
-      }
-    };
+
   return (
     <div className='p-3 text-white '>
+      {/* SIDEBAR TOGGLE (MOBILE) */}
       <div className="md:hidden fixed top-4 left-4 z-50">
-              <button
-                onClick={toggleSidebar}
-                className="p-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-xl hover:scale-105 transition-transform"
-              >
-                {sidebarOpen ? (
-                  <FaTimes className="text-white text-xl" />
-                ) : (
-                  <FaBars className="text-white text-xl" />
-                )}
-              </button>
-            </div>
-      
-            {/* Mobile Sidebar Dropdown Menu */}
-            {sidebarOpen && (
-              <div className="md:hidden fixed top-20 left-4 bg-[#1b1e33] rounded-lg shadow-lg p-4 z-40">
-                <ul className="space-y-2">
-                  
-                  <li>
-                    <a href="/addassets" className="block text-gray-200 hover:text-white">
-                      Add Assets
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/editassets" className="block text-gray-200 hover:text-white">
-                      Edit Assets
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/deleteassets" className="block text-gray-200 hover:text-white">
-                      Delete Assets
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/profile" className="block text-gray-200 hover:text-white">
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                            <button className='text-gray-200' onClick={handleLogout}>Logout</button>
-                          </li>
-                </ul>
-              </div>
-            )}
+        <button
+          onClick={toggleSidebar}
+          className="p-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-xl hover:scale-105 transition-transform"
+        >
+          {sidebarOpen ? (
+            <FaTimes className="text-white text-xl" />
+          ) : (
+            <FaBars className="text-white text-xl" />
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Sidebar Menu */}
+      {sidebarOpen && (
+        <div className="md:hidden fixed top-20 left-4 bg-[#1b1e33] rounded-lg shadow-lg p-4 z-40">
+          <ul className="space-y-2">
+            <li>
+              <a href="/addassets" className="block text-gray-200 hover:text-white">
+                Add Assets
+              </a>
+            </li>
+            <li>
+              <a href="/editassets" className="block text-gray-200 hover:text-white">
+                Edit Assets
+              </a>
+            </li>
+            <li>
+              <a href="/deleteassets" className="block text-gray-200 hover:text-white">
+                Delete Assets
+              </a>
+            </li>
+            <li>
+              <a href="/profile" className="block text-gray-200 hover:text-white">
+                Profile
+              </a>
+            </li>
+            <li>
+              <button className='text-gray-200' onClick={handleLogout}>Logout</button>
+            </li>
+          </ul>
+        </div>
+      )}
+
       {/* HEADER */}
       <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <Dialog title={assetData.title} description={assetData.description} />
         <div className="text-center sm:text-left">
-          <h1 className="text-3xl font-bold text-white pt-5  ">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white pt-5">Dashboard</h1>
           <p className="text-sm mt-1 text-[#5B5A99]">
             Add any type of asset in just a click
           </p>
         </div>
         <div className="flex items-center gap-4 justify-center">
-          
           <div className="hidden sm:flex items-center space-x-2 cursor-pointer">
             <img
               src={Face}
@@ -211,13 +206,12 @@ const Home = () => {
             />
             <span className="text-sm font-medium text-[#5B5A99]">John Doe</span>
           </div>
-          
         </div>
       </header>
 
       {/* CARDS SECTION */}
       <section className="mt-8 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {/* Example Cards */}
+        {/* Example card 1 */}
         <div className="cursor-pointer hover:bg-gradient-to-r from-[#0B98C5] via-[#11AADF] to-[#14BAE3]
           border-solid border-3 border-[#312F62] p-4 rounded-xl shadow-lg flex flex-col justify-center">
           <div className="flex items-center justify-between">
@@ -229,6 +223,7 @@ const Home = () => {
             <p className="text-xs text-gray-400">3</p>
           </div>
         </div>
+        {/* Example card 2 */}
         <div className="cursor-pointer hover:bg-gradient-to-r from-[#0B98C5] via-[#11AADF] to-[#14BAE3]
           border-solid border-3 border-[#312F62] p-4 rounded-xl shadow-lg flex flex-col justify-center">
           <div className="flex items-center justify-between">
@@ -240,6 +235,7 @@ const Home = () => {
             <p className="text-xs text-gray-400">25</p>
           </div>
         </div>
+        {/* Example card 3 */}
         <div className="cursor-pointer hover:bg-gradient-to-r from-[#0B98C5] via-[#11AADF] to-[#14BAE3]
           border-solid border-3 border-[#312F62] p-4 rounded-xl shadow-lg flex flex-col justify-center">
           <div className="flex items-center justify-between">
@@ -251,6 +247,7 @@ const Home = () => {
             <p className="text-xs text-gray-400">$95,000</p>
           </div>
         </div>
+        {/* Example card 4 */}
         <div className="cursor-pointer hover:bg-gradient-to-r from-[#0B98C5] via-[#11AADF] to-[#14BAE3]
           border-solid border-3 border-[#312F62] p-4 rounded-xl shadow-lg flex flex-col justify-center">
           <h2 className="text-sm text-gray-200">Additional</h2>
@@ -264,6 +261,7 @@ const Home = () => {
           {/* LEFT COLUMN: Basic fields and Extended Description */}
           <div className="bg-[#2b2e4a] p-4 rounded-xl shadow-lg">
             <h2 className="text-lg font-bold text-white mb-4">Add Assets (Part 1)</h2>
+            
             {/* Title */}
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2" htmlFor="assetName">
@@ -279,6 +277,7 @@ const Home = () => {
                 onChange={handleChange}
               />
             </div>
+
             {/* Description */}
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2" htmlFor="assetDescription">
@@ -293,6 +292,7 @@ const Home = () => {
                 onChange={handleChange}
               />
             </div>
+
             {/* Extended Description */}
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2" htmlFor="extendedDescription">
@@ -307,6 +307,7 @@ const Home = () => {
                 onChange={handleChange}
               />
             </div>
+
             {/* Poly */}
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2" htmlFor="poly">
@@ -322,6 +323,7 @@ const Home = () => {
                 onChange={handleChange}
               />
             </div>
+
             {/* Price */}
             <div className="mb-4">
               <label className="block text-gray-300 text-sm mb-2" htmlFor="price">
@@ -339,7 +341,7 @@ const Home = () => {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Image Preview on top and remaining fields below */}
+          {/* RIGHT COLUMN: Image Preview and more fields */}
           <div className="flex flex-col gap-4">
             {/* IMAGE PREVIEW */}
             <div className="shadow-2xl drop-shadow-2xl border-2 border-dashed border-gray-500 rounded-xl h-64 w-full flex items-center justify-center">
@@ -353,9 +355,11 @@ const Home = () => {
                 <p className="text-gray-400">Image Preview</p>
               )}
             </div>
-            {/* Remaining Fields */}
+
+            {/* Additional Fields */}
             <div className="bg-[#2b2e4a] p-4 rounded-xl shadow-lg">
               <h2 className="text-lg font-bold text-white mb-4">Add Assets (Part 2)</h2>
+
               {/* Model URL */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="modelUrl">
@@ -371,7 +375,8 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
-              {/* Walk Model URLs (multiple URLs) */}
+
+              {/* Walk Model URLs */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="walkModelUrls">
                   Animation/Walk Model URLs (comma separated)
@@ -386,6 +391,7 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
+
               {/* Software */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="software">
@@ -401,6 +407,7 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
+
               {/* Software Logo */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="softwareLogo">
@@ -416,10 +423,13 @@ const Home = () => {
                   onChange={handleChange}
                 />
               </div>
-              {/* Scale (scaleX, scaleY, scaleZ) */}
+
+              {/* Scale */}
               <div className="mb-4 grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleX">Scale X</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleX">
+                    Scale X
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -432,7 +442,9 @@ const Home = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleY">Scale Y</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleY">
+                    Scale Y
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -445,7 +457,9 @@ const Home = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleZ">Scale Z</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="scaleZ">
+                    Scale Z
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -458,10 +472,13 @@ const Home = () => {
                   />
                 </div>
               </div>
-              {/* Rotation (rotationX, rotationY, rotationZ) */}
+
+              {/* Rotation */}
               <div className="mb-4 grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationX">Rot X</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationX">
+                    Rot X
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -474,7 +491,9 @@ const Home = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationY">Rot Y</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationY">
+                    Rot Y
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -487,7 +506,9 @@ const Home = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationZ">Rot Z</label>
+                  <label className="block text-gray-300 text-sm mb-1" htmlFor="rotationZ">
+                    Rot Z
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -500,19 +521,25 @@ const Home = () => {
                   />
                 </div>
               </div>
-              {/* File Upload (Optional) */}
+
+              {/* File Upload (for thumbnail) */}
               <div className="mb-4">
                 <label className="block text-gray-300 text-sm mb-2" htmlFor="assetFile">
                   Upload Asset File (Optional)
                 </label>
                 <input
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none bg-[#1b1e33] p-2 rounded"
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0
+                    file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100 focus:outline-none
+                    bg-[#1b1e33] p-2 rounded"
                   type="file"
                   id="assetFile"
                   name="assetFile"
                   onChange={handleFileChange}
                 />
               </div>
+
               {/* Technical Details */}
               <h3 className="text-md font-bold text-white mb-2 mt-6">Technical (Required)</h3>
               <div className="grid grid-cols-3 gap-2 text-xs">
@@ -523,17 +550,22 @@ const Home = () => {
                       type="text"
                       name={field}
                       placeholder="0"
-                      value={assetData[field] || ""} 
+                      value={assetData[field] || ""}
                       onChange={handleChange}
                       className="w-full bg-[#1b1e33] text-white px-4 py-2 rounded-md border border-gray-500 outline-none"
                     />
                   </div>
                 ))}
               </div>
+
               {/* Submit Button */}
               <button
                 type="submit"
-                className="mt-6 w-full px-6 py-2 text-white font-semibold rounded-full bg-gray-900 border-2 border-green-400 shadow-[0_0_10px_rgba(0,255,127,0.8)] hover:shadow-[0_0_20px_rgba(0,255,127,1)] transition-all duration-300 ease-in-out"
+                className="mt-6 w-full px-6 py-2 text-white font-semibold rounded-full
+                  bg-gray-900 border-2 border-green-400
+                  shadow-[0_0_10px_rgba(0,255,127,0.8)]
+                  hover:shadow-[0_0_20px_rgba(0,255,127,1)]
+                  transition-all duration-300 ease-in-out"
               >
                 Add Asset
               </button>
